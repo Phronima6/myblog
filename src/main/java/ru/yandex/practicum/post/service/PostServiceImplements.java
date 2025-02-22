@@ -77,6 +77,7 @@ public class PostServiceImplements implements PostService {
     @Override
     @Transactional(readOnly = true)
     public List<PostDtoResponseShort> getPosts() {
+        log.info("Попытка найти все посты.");
         return postRepository.findAll().stream()
                 .map((post -> {
                     final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
@@ -95,7 +96,9 @@ public class PostServiceImplements implements PostService {
     @Override
     @Transactional(readOnly = true)
     public List<PostDtoResponseShort> getPostsWithTags(final String tagText) {
+        log.info("Попытка найти все посты по тегу: {}.", tagText);
         final List<Long> postIds = tagService.findAllPostIdByTagText(tagText);
+        log.info("По тегу найдены посты со следующими id: {}.", postIds);
         return postRepository.findByPostIdIn(postIds).stream()
                 .map((post -> {
                     final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
@@ -114,7 +117,8 @@ public class PostServiceImplements implements PostService {
     @Override
     @Transactional(readOnly = true)
     public Page<PostDtoResponseShort> getPostsPaginated(final Integer size, final Integer page) {
-        final Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        log.info("Попытка найти посты c ограничением по размеру: {}.", size);
+        final Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postId").descending());
         final Page<Post> postPage = postRepository.findAll(pageable);
         return postPage.map(post -> {
             final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
@@ -132,13 +136,16 @@ public class PostServiceImplements implements PostService {
     @Override
     public void updatePost(final PostDtoRequest postDtoRequest, final Long postId) {
         log.info("Попытка обновить пост с id: {}.", postId);
-        findPostByIdOrException(postId);
-        final Image image = imageService.saveImage(postDtoRequest.getMultipartFile());
+        final Post oldPost = findPostByIdOrException(postId);
+        System.out.println("Картинка" + oldPost.getImageId());
+        final Image image = imageService.updateImage(oldPost.getImageId(), postDtoRequest.getMultipartFile());
+        System.out.println("Картинка" + image.getImageId());
         final Post post = postMapper.toPost(postDtoRequest);
+        post.setPostId(postId);
         post.setImageId(image.getImageId());
         final Post updatePost = postRepository.save(post);
         final Long updatePostId = updatePost.getPostId();
-        tagService.saveTags(postDtoRequest.getTagsText(), updatePostId);
+        tagService.updateTags(postDtoRequest.getTagsText(), updatePost.getPostId());
         log.info("Пост с id: {} обновлён.", updatePostId);
     }
 
@@ -152,12 +159,14 @@ public class PostServiceImplements implements PostService {
     @Override
     @Transactional(readOnly = true)
     public Post findPostByIdOrException(final Long postId) {
+        log.info("Поиск поста по id: {}.", postId);
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Пост с id: " + postId + " не найден."));
     }
 
     @Transactional(readOnly = true)
     private static String getPreview(final String postText) {
+        log.info("Подготовка превью поста по тексту: {}.", postText);
         if (postText.isEmpty()) return "";
         int newlinePos = postText.indexOf("\n");
         int previewEnd = Math.min((newlinePos != -1 ? newlinePos + 1 : postText.length()), PREVIEW_MAX_LENGTH);

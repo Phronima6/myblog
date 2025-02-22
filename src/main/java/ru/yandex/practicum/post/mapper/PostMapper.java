@@ -26,6 +26,7 @@ public class PostMapper {
 
     public PostDtoResponseShort toPostDtoResponseShort(final Post post) {
         final PostDtoResponseShort postDtoResponseShort = new PostDtoResponseShort();
+        postDtoResponseShort.setPostId(post.getPostId());
         postDtoResponseShort.setPostName(post.getPostName());
         return  postDtoResponseShort;
     }

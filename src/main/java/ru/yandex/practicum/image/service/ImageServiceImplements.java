@@ -48,4 +48,22 @@ public class ImageServiceImplements implements ImageService {
         return image;
     }
 
+    @Override
+    @Transactional
+    public Image updateImage(final Long imageId, final MultipartFile file) {
+        log.info("Попытка обновить изображение с ID: {}", imageId);
+        final Image oldImage = imageRepository.findById(imageId)
+                .orElseThrow(() -> new NotFoundException("Изображение с ID " + imageId + " не найдено."));
+        oldImage.setImageName(file.getOriginalFilename());
+        try {
+            oldImage.setImageData(file.getBytes());
+        } catch (IOException exception) {
+            log.error("Ошибка при обработке изображения: {}", exception.getMessage());
+            throw new ImageProcessingException("Не удалось обработать изображение.");
+        }
+        final Image updatedImage = imageRepository.save(oldImage);
+        log.info("Изображение с ID: {} успешно обновлено.", updatedImage.getImageId());
+        return updatedImage;
+    }
+
 }

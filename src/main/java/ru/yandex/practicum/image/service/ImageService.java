@@ -9,4 +9,6 @@ public interface ImageService {
 
     Image getImage(final Long imageId);
 
+    Image updateImage(final Long imageId, final MultipartFile file);
+
 }

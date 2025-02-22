@@ -9,6 +9,7 @@ public class CommentMapper {
 
     public static CommentDtoResponse toCommentDtoResponse (final Comment comment) {
         final CommentDtoResponse commentDtoResponse = new CommentDtoResponse();
+        commentDtoResponse.setCommentId(comment.getCommentId());
         commentDtoResponse.setCommentText(comment.getCommentText());
         return commentDtoResponse;
     }

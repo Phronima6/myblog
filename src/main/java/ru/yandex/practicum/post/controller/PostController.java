@@ -42,7 +42,7 @@ public class PostController {
         return "feed";
     }
 
-    @GetMapping("/tags/")
+    @GetMapping("/tags")
     public String getPostsWithTags(@RequestParam(name = "tagText") final String tagText,
                                    final Model model) {
         List<PostDtoResponseShort> feedWithChosenTags = postService.getPostsWithTags(tagText);
@@ -51,11 +51,11 @@ public class PostController {
     }
 
     @GetMapping("/feed")
-    public String getPostsPaginated(@RequestParam(defaultValue = "10") @Min(10) final Integer size,
-                                    @RequestParam(defaultValue = "1") @Min(1) final Integer page,
+    public String getPostsPaginated(@RequestParam(defaultValue = "10") final Integer size,
+                                    @RequestParam(defaultValue = "1") final Integer page,
                                     final Model model) {
         Page<PostDtoResponseShort> postPage = postService.getPostsPaginated(size, page);
-        model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("feed", postPage.getContent());
         model.addAttribute("pageInfo", postPage);
         return "feed";
     }

@@ -10,6 +10,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostDtoResponseShort {
 
+    Long postId;
     String postName;
     String base64Image;
     String postPreview;

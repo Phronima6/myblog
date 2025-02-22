@@ -12,7 +12,6 @@ import ru.yandex.practicum.comment.model.Comment;
 import ru.yandex.practicum.comment.repository.CommentRepository;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.post.service.PostService;
-
 import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)

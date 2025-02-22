@@ -87,7 +87,7 @@ class PostControllerTest {
         when(postPage.getContent()).thenReturn(List.of(new PostDtoResponseShort()));
         final String result = postController.getPostsPaginated(size, page, model);
         verify(postService, times(1)).getPostsPaginated(size, page);
-        verify(model, times(1)).addAttribute("posts", postPage.getContent());
+        verify(model, times(1)).addAttribute("feed", postPage.getContent());
         verify(model, times(1)).addAttribute("pageInfo", postPage);
         assertEquals("feed", result);
     }
