@@ -1,7 +1,6 @@
 package ru.yandex.practicum.post.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,8 +17,12 @@ import java.util.List;
 @RequestMapping("/feed")
 public class PostController {
 
-    @Autowired
     PostService postService;
+
+    @Autowired
+    public PostController(final PostService postService) {
+        this.postService = postService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

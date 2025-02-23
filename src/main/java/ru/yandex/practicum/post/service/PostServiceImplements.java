@@ -4,10 +4,8 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.comment.service.CommentService;
@@ -25,25 +23,31 @@ import ru.yandex.practicum.tag.service.TagService;
 import java.util.Base64;
 import java.util.List;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Service
 @Slf4j
 @Transactional
 public class PostServiceImplements implements PostService {
 
-    @Autowired
     PostRepository postRepository;
-    @Autowired
     PostMapper postMapper;
-    @Autowired
     ImageService imageService;
-    @Autowired
     LikeService likeService;
-    @Autowired
     TagService tagService;
-    @Autowired
     CommentService commentService;
-    final static Integer PREVIEW_MAX_LENGTH = 5;
+    static Integer PREVIEW_MAX_LENGTH = 5;
+
+    @Autowired
+    public PostServiceImplements(final PostRepository postRepository, final PostMapper postMapper,
+                                 final ImageService imageService, @Lazy final LikeService likeService,
+                                 final TagService tagService, @Lazy final CommentService commentService) {
+        this.postRepository = postRepository;
+        this.postMapper = postMapper;
+        this.imageService = imageService;
+        this.likeService = likeService;
+        this.tagService = tagService;
+        this.commentService = commentService;
+    }
 
     @Override
     public void savePost(final PostDtoRequest postDtoRequest) {
@@ -79,17 +83,7 @@ public class PostServiceImplements implements PostService {
     public List<PostDtoResponseShort> getPosts() {
         log.info("Попытка найти все посты.");
         return postRepository.findAll().stream()
-                .map((post -> {
-                    final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
-                    final Image image = imageService.getImage(post.getImageId());
-                    final String imageBase64 = Base64.getEncoder().encodeToString(image.getImageData());
-                    postDtoResponseShort.setBase64Image(imageBase64);
-                    postDtoResponseShort.setPostPreview(getPreview(post.getPostText()));
-                    postDtoResponseShort.setCountLikes(likeService.getCountLikesOfPost(post.getPostId()));
-                    postDtoResponseShort.setTagsDto(tagService.findAllTagsByPostId(post.getPostId()));
-                    postDtoResponseShort.setCountComments(commentService.getCountCommentsOfPost(post.getPostId()));
-                    return postDtoResponseShort;
-                }))
+                .map(this::buildPostDtoResponseShort)
                 .toList();
     }
 
@@ -100,17 +94,7 @@ public class PostServiceImplements implements PostService {
         final List<Long> postIds = tagService.findAllPostIdByTagText(tagText);
         log.info("По тегу найдены посты со следующими id: {}.", postIds);
         return postRepository.findByPostIdIn(postIds).stream()
-                .map((post -> {
-                    final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
-                    final Image image = imageService.getImage(post.getImageId());
-                    final String imageBase64 = Base64.getEncoder().encodeToString(image.getImageData());
-                    postDtoResponseShort.setBase64Image(imageBase64);
-                    postDtoResponseShort.setPostPreview(getPreview(post.getPostText()));
-                    postDtoResponseShort.setCountLikes(likeService.getCountLikesOfPost(post.getPostId()));
-                    postDtoResponseShort.setTagsDto(tagService.findAllTagsByPostId(post.getPostId()));
-                    postDtoResponseShort.setCountComments(commentService.getCountCommentsOfPost(post.getPostId()));
-                    return postDtoResponseShort;
-                }))
+                .map(this::buildPostDtoResponseShort)
                 .toList();
     }
 
@@ -118,41 +102,32 @@ public class PostServiceImplements implements PostService {
     @Transactional(readOnly = true)
     public Page<PostDtoResponseShort> getPostsPaginated(final Integer size, final Integer page) {
         log.info("Попытка найти посты c ограничением по размеру: {}.", size);
-        final Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postId").descending());
-        final Page<Post> postPage = postRepository.findAll(pageable);
-        return postPage.map(post -> {
-            final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
-            final Image image = imageService.getImage(post.getImageId());
-            final String imageBase64 = Base64.getEncoder().encodeToString(image.getImageData());
-            postDtoResponseShort.setBase64Image(imageBase64);
-            postDtoResponseShort.setPostPreview(getPreview(post.getPostText()));
-            postDtoResponseShort.setCountLikes(likeService.getCountLikesOfPost(post.getPostId()));
-            postDtoResponseShort.setTagsDto(tagService.findAllTagsByPostId(post.getPostId()));
-            postDtoResponseShort.setCountComments(commentService.getCountCommentsOfPost(post.getPostId()));
-            return postDtoResponseShort;
-        });
+        List<Post> posts = postRepository.findPaginated(page, size);
+        int totalPosts = postRepository.countPosts();
+        List<PostDtoResponseShort> postDtos = posts.stream()
+                .map(this::buildPostDtoResponseShort)
+                .toList();
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return new PageImpl<>(postDtos, pageable, totalPosts);
     }
 
     @Override
     public void updatePost(final PostDtoRequest postDtoRequest, final Long postId) {
         log.info("Попытка обновить пост с id: {}.", postId);
         final Post oldPost = findPostByIdOrException(postId);
-        System.out.println("Картинка" + oldPost.getImageId());
         final Image image = imageService.updateImage(oldPost.getImageId(), postDtoRequest.getMultipartFile());
-        System.out.println("Картинка" + image.getImageId());
         final Post post = postMapper.toPost(postDtoRequest);
         post.setPostId(postId);
         post.setImageId(image.getImageId());
-        final Post updatePost = postRepository.save(post);
-        final Long updatePostId = updatePost.getPostId();
-        tagService.updateTags(postDtoRequest.getTagsText(), updatePost.getPostId());
-        log.info("Пост с id: {} обновлён.", updatePostId);
+        postRepository.update(post);
+        tagService.updateTags(postDtoRequest.getTagsText(), postId);
+        log.info("Пост с id: {} обновлён.", postId);
     }
 
     @Override
     public void deletePost(final Long postId) {
         log.info("Попытка удалить пост с id: {}.", postId);
-        postRepository.delete(findPostByIdOrException(postId));
+        postRepository.deleteById(postId);
         log.info("Пост с id: {} удалён.", postId);
     }
 
@@ -164,13 +139,26 @@ public class PostServiceImplements implements PostService {
                 .orElseThrow(() -> new NotFoundException("Пост с id: " + postId + " не найден."));
     }
 
+    @Override
     @Transactional(readOnly = true)
-    private static String getPreview(final String postText) {
+    public String getPreview(final String postText) {
         log.info("Подготовка превью поста по тексту: {}.", postText);
         if (postText.isEmpty()) return "";
         int newlinePos = postText.indexOf("\n");
         int previewEnd = Math.min((newlinePos != -1 ? newlinePos + 1 : postText.length()), PREVIEW_MAX_LENGTH);
         return postText.substring(0, Math.min(previewEnd, postText.length()));
+    }
+
+    private PostDtoResponseShort buildPostDtoResponseShort(final Post post) {
+        final PostDtoResponseShort postDtoResponseShort = postMapper.toPostDtoResponseShort(post);
+        final Image image = imageService.getImage(post.getImageId());
+        final String imageBase64 = Base64.getEncoder().encodeToString(image.getImageData());
+        postDtoResponseShort.setBase64Image(imageBase64);
+        postDtoResponseShort.setPostPreview(getPreview(post.getPostText()));
+        postDtoResponseShort.setCountLikes(likeService.getCountLikesOfPost(post.getPostId()));
+        postDtoResponseShort.setTagsDto(tagService.findAllTagsByPostId(post.getPostId()));
+        postDtoResponseShort.setCountComments(commentService.getCountCommentsOfPost(post.getPostId()));
+        return postDtoResponseShort;
     }
 
 }

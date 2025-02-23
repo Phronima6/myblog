@@ -4,36 +4,37 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.comment.dto.CommentDtoResponse;
 import ru.yandex.practicum.comment.mapper.CommentMapper;
 import ru.yandex.practicum.comment.model.Comment;
 import ru.yandex.practicum.comment.repository.CommentRepository;
-import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.post.service.PostService;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Service
 @Slf4j
 @Transactional
 public class CommentServiceImplements implements CommentService {
 
-    @Autowired
     CommentRepository commentRepository;
-    @Autowired
-    CommentMapper commentMapper;
-    @Autowired
     PostService postService;
+
+    @Autowired
+    public CommentServiceImplements(final CommentRepository commentRepository, @Lazy final PostService postService) {
+        this.commentRepository = commentRepository;
+        this.postService = postService;
+    }
 
     @Override
     public void saveComment(final String commentText, final Long postId) {
         log.info("Попытка загрузить комментарий для поста с id: {}.", postId);
         postService.findPostByIdOrException(postId);
-        final Comment comment = new Comment();
-        comment.setCommentText(commentText);
-        comment.setPostId(postId);
+        final Comment comment = new Comment(null, commentText, postId);
         final Comment savedComment = commentRepository.save(comment);
         log.info("Загружен комментарий с id: {}.", savedComment.getCommentId());
     }
@@ -44,7 +45,7 @@ public class CommentServiceImplements implements CommentService {
         log.info("Попытка получить комментарий для поста с id: {}.", postId);
         return commentRepository.findByPostId(postId).stream()
                 .map(CommentMapper::toCommentDtoResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -57,13 +58,7 @@ public class CommentServiceImplements implements CommentService {
     @Override
     public void updateComment(final Long commentId, final String commentText) {
         log.info("Попытка обновить комментарий с id: {}", commentId);
-        final Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> {
-                    log.error("Комментарий с id: {} не найден", commentId);
-                    return new NotFoundException("Комментарий не найден");
-                });
-        comment.setCommentText(commentText);
-        commentRepository.save(comment);
+        commentRepository.updateComment(commentId, commentText);
         log.info("Комментарий с id: {} успешно обновлен", commentId);
     }
 

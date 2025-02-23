@@ -13,14 +13,18 @@ import ru.yandex.practicum.image.model.Image;
 import ru.yandex.practicum.image.repository.ImageRepository;
 import java.io.IOException;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Service
 @Slf4j
 @Transactional
 public class ImageServiceImplements implements ImageService {
 
-    @Autowired
     ImageRepository imageRepository;
+
+    @Autowired
+    public ImageServiceImplements(final ImageRepository imageRepository) {
+        this.imageRepository = imageRepository;
+    }
 
     @Override
     public Image saveImage(final MultipartFile file) {
@@ -61,9 +65,9 @@ public class ImageServiceImplements implements ImageService {
             log.error("Ошибка при обработке изображения: {}", exception.getMessage());
             throw new ImageProcessingException("Не удалось обработать изображение.");
         }
-        final Image updatedImage = imageRepository.save(oldImage);
-        log.info("Изображение с ID: {} успешно обновлено.", updatedImage.getImageId());
-        return updatedImage;
+        imageRepository.update(oldImage);
+        log.info("Изображение с ID: {} успешно обновлено.", oldImage.getImageId());
+        return oldImage;
     }
 
 }

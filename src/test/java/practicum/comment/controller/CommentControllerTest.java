@@ -7,7 +7,6 @@ import ru.yandex.practicum.comment.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,12 +21,12 @@ class CommentControllerTest {
 
     @Mock
     CommentService commentService;
-    @InjectMocks
     CommentController commentController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        commentController = new CommentController(commentService);
     }
 
     @Test

@@ -25,4 +25,6 @@ public interface PostService {
 
     Post findPostByIdOrException(final Long postId);
 
+    String getPreview(final String postText);
+
 }

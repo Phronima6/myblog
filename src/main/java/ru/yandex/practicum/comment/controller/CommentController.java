@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.comment.service.CommentService;
 
 @Controller
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequestMapping("/feed")
 public class CommentController {
 
-    @Autowired
     CommentService commentService;
+
+    @Autowired
+    public CommentController(final CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     @PostMapping("/post/{id}/saveComment")
     @ResponseStatus(HttpStatus.CREATED)

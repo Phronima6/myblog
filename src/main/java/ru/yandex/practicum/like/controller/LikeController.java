@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.like.service.LikeService;
 
 @Controller
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequestMapping("/feed")
 public class LikeController {
 
-    @Autowired
     LikeService likeService;
+
+    @Autowired
+    public LikeController(LikeService likeService) {
+        this.likeService = likeService;
+    }
 
     @PostMapping("/post/{id}/addLike")
     @ResponseStatus(HttpStatus.CREATED)

@@ -28,12 +28,12 @@ public class ImageServiceTest {
     ImageRepository imageRepository;
     @Mock
     MultipartFile file;
-    @InjectMocks
     ImageServiceImplements imageService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        imageService = new ImageServiceImplements(imageRepository);
     }
 
     @Test

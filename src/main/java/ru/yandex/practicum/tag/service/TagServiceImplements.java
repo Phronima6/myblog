@@ -16,16 +16,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Service
 @Slf4j
 @Transactional
 public class TagServiceImplements implements TagService {
 
-    @Autowired
     TagRepository tagRepository;
+
     @Autowired
-    TagMapper tagMapper;
+    public TagServiceImplements(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
+    }
 
     @Override
     public void saveTags(final String tagsText, final Long postId) {
@@ -41,10 +43,7 @@ public class TagServiceImplements implements TagService {
                     return tag;
                 })
                 .toList();
-        final List<Tag> savedTags = tagRepository.saveAll(tagsList);
-        savedTags.forEach(tag ->
-                log.info("Тег c id: {} загружен для поста {}", tag.getTagId(), postId)
-        );
+        tagRepository.saveAll(tagsList);
         log.info("Теги загружены.");
     }
 

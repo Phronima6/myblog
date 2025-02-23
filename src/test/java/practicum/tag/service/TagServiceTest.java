@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,9 +12,9 @@ import org.springframework.test.context.TestPropertySource;
 import ru.yandex.practicum.tag.model.Tag;
 import ru.yandex.practicum.tag.repository.TagRepository;
 import ru.yandex.practicum.tag.service.TagServiceImplements;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -24,12 +23,12 @@ class TagServiceTest {
 
     @Mock
     TagRepository tagRepository;
-    @InjectMocks
     TagServiceImplements tagService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        tagService = new TagServiceImplements(tagRepository);
     }
 
     @Test
@@ -43,6 +42,7 @@ class TagServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0));
+        verify(tagRepository, times(1)).findByTagText(tagText);
     }
 
 }

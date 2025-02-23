@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,12 +21,12 @@ class LikeControllerTest {
 
     @Mock
     LikeService likeService;
-    @InjectMocks
     LikeController likeController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        likeController = new LikeController(likeService);
     }
 
     @Test

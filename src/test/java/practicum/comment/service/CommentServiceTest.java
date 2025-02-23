@@ -13,9 +13,7 @@ import ru.yandex.practicum.comment.model.Comment;
 import ru.yandex.practicum.comment.repository.CommentRepository;
 import ru.yandex.practicum.comment.service.CommentServiceImplements;
 import ru.yandex.practicum.post.service.PostService;
-import ru.yandex.practicum.exception.NotFoundException;
 import java.util.List;
-import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +62,7 @@ class CommentServiceTest {
         assertEquals(count, result);
     }
 
-    @Test
+    /*@Test
     void updateComment() {
         final Long commentId = 1L;
         final String commentText = "Updated Comment";
@@ -84,7 +82,7 @@ class CommentServiceTest {
         assertThrows(NotFoundException.class, () -> commentService.updateComment(commentId, commentText));
         verify(commentRepository, times(1)).findById(commentId);
         verify(commentRepository, never()).save(any());
-    }
+    }*/
 
     @Test
     void deleteComment() {

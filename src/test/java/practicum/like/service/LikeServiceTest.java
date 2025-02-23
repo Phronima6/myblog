@@ -24,12 +24,12 @@ class LikeServiceTest {
     LikeRepository likeRepository;
     @Mock
     PostServiceImplements postService;
-    @InjectMocks
     LikeServiceImplements likeService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        likeService = new LikeServiceImplements(likeRepository, postService);
     }
 
     @Test
