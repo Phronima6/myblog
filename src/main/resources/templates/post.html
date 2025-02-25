@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>Пост</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+    }
+    .actions {
+        text-align: center;
+    }
+    .form-container {
+        margin-top: 20px;
+    }
+    label {
+        display: block;
+        margin-top: 10px;
+    }
+    input[type="text"], input[type="file"] {
+        width: 100%;
+        padding: 5px;
+        margin-top: 5px;
+    }
+    button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+    .btn-add {
+        margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1 th:text="'Пост с id = ' + ${postDto.postId}"></h1>
+<table>
+  <tbody>
+  <tr>
+    <th>Название</th>
+    <td th:text="${postDto.postName}"></td>
+  </tr>
+  <tr>
+    <th>Картинка</th>
+    <td><img th:src="@{'data:image/jpeg;base64,' + ${postDto.base64Image}}" width="400"/></td>
+  </tr>
+  <tr>
+    <th>Текст</th>
+    <td th:text="${postDto.postText}"></td>
+  </tr>
+  <tr>
+    <th>Теги</th>
+    <td th:each="tag : ${postDto.tagsDto}" th:text="${tag.tagText} + ' '"></td>
+  </tr>
+  <tr>
+    <th>Количество комментариев</th>
+    <td th:text="${postDto.commentsDtoResponse.size()}"></td>
+  </tr>
+  <tr th:each="comment : ${postDto.commentsDtoResponse}">
+    <th>Комментарий</th>
+    <td contenteditable="true" th:text="${comment.commentText}" th:attr="post-id=${postDto.postId}, comment-id=${comment.commentId}" onkeydown="toggleForm3(event)"></td>
+    <td>
+      <form th:action="@{/feed/post/{id}/deleteComment/{commentId}(id=${postDto.postId}, commentId=${comment.commentId})}" method="post" style="display:inline;">
+        <input type="hidden" name="_method" value="delete"/>
+        <button type="submit">Удалить комментарий</button>
+      </form>
+    </td>
+  </tr>
+  <tr>
+    <th>Количество лайков</th>
+    <td th:text="${postDto.countLikes}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<form th:action="@{/feed/post/{id}/addLike(id=${postDto.postId})}" method="POST">
+  <button type="submit">Поставить лайк</button>
+</form>
+<br/>
+
+<button class="btn-add" onclick="toggleForm2()">Добавить комментарий</button>
+<div class="form-container" style="display: none;" id="addComment">
+  <h2>Добавить комментарий</h2>
+  <form th:action="@{/feed/post/{id}/saveComment(id=${postDto.postId})}" method="POST">
+    <label for="text">Текст:</label>
+    <input type="text" id="text" name="text" required="required"/>
+    <button type="submit">Добавить комментарий</button>
+  </form>
+</div>
+<br/>
+
+<button class="btn-add" onclick="toggleForm()">Редактировать пост</button>
+<div class="form-container" style="display: none;" id="changeForm">
+  <h2>Редактировать пост</h2>
+  <form th:action="@{/feed/post/{id}/update(id=${postDto.postId})}" method="POST" enctype="multipart/form-data">
+    <label for="postName">Название:</label>
+    <input type="text" id="postName" name="postName" required="required"/>
+    <label for="multipartFile">Прикрепите картинку:</label>
+    <input type="file" id="multipartFile" name="multipartFile" accept="image/*" class="form-control-file" required="required"/>
+    <label for="postText">Текст:</label>
+    <input type="text" id="postText" name="postText" required="required"/>
+    <label for="tagsText">Теги (ввод - через запятую):</label>
+    <input type="text" id="tagsText" name="tagsText" required="required"/>
+    <button type="submit">Заменить</button>
+  </form>
+</div>
+<br/>
+
+<form th:action="@{/feed/post/{id}(id=${postDto.postId})}" method="post" style="display:inline;">
+  <input type="hidden" name="_method" value="delete"/>
+  <button type="submit">Удалить пост</button>
+</form>
+
+<br/>
+<br/>
+<a th:href="@{/feed}" th:text="'Вернуться на главную'"></a>
+
+<script>
+  function toggleForm() {
+      const form = document.getElementById('changeForm');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function toggleForm2() {
+      const form = document.getElementById('addComment');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function toggleForm3(event) {
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+          event.preventDefault();
+          const currElement = event.currentTarget;
+          const postIdParameter = currElement.getAttribute("post-id");
+          const commentIdParameter = currElement.getAttribute("comment-id");
+          const commentTextParameter = currElement.innerText;
+
+          var dataReq = {};
+          dataReq["id"] = commentIdParameter;
+          dataReq["postId"] = postIdParameter;
+          dataReq["text"] = commentTextParameter;
+
+          $.ajax({
+              url: '/feed/post/comment',
+              method: 'POST',
+              data: dataReq,
+              error: function(xhr, status, error) {
+                  console.error(error);
+              }
+          });
+      }
+  }
+</script>
+</body>
+</html>
