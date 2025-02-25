@@ -1,9 +1,9 @@
 package ru.yandex.practicum.tag.service;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.tag.dto.TagDtoResponse;
@@ -20,14 +20,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @Transactional
+@RequiredArgsConstructor
 public class TagServiceImplements implements TagService {
 
     TagRepository tagRepository;
-
-    @Autowired
-    public TagServiceImplements(TagRepository tagRepository) {
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public void saveTags(final String tagsText, final Long postId) {

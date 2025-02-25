@@ -3,7 +3,6 @@ package ru.yandex.practicum.like.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,7 @@ public class LikeServiceImplements implements LikeService {
     LikeRepository likeRepository;
     PostService postService;
 
-    @Autowired
+
     public LikeServiceImplements(final LikeRepository likeRepository, @Lazy final PostService postService) {
         this.likeRepository = likeRepository;
         this.postService = postService;

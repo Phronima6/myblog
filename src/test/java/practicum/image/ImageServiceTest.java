@@ -2,13 +2,12 @@ package practicum.image;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.exception.ImageProcessingException;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.image.model.Image;
@@ -19,8 +18,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 public class ImageServiceTest {
 
@@ -28,13 +27,8 @@ public class ImageServiceTest {
     ImageRepository imageRepository;
     @Mock
     MultipartFile file;
+    @InjectMocks
     ImageServiceImplements imageService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        imageService = new ImageServiceImplements(imageRepository);
-    }
 
     @Test
     void saveImage() throws IOException {

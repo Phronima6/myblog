@@ -3,7 +3,6 @@ package ru.yandex.practicum.comment.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ public class CommentServiceImplements implements CommentService {
     CommentRepository commentRepository;
     PostService postService;
 
-    @Autowired
     public CommentServiceImplements(final CommentRepository commentRepository, @Lazy final PostService postService) {
         this.commentRepository = commentRepository;
         this.postService = postService;

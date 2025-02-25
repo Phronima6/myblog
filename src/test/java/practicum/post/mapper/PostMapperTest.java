@@ -3,7 +3,9 @@ package practicum.post.mapper;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.post.dto.PostDtoRequest;
 import ru.yandex.practicum.post.dto.PostDtoResponse;
 import ru.yandex.practicum.post.dto.PostDtoResponseShort;
@@ -12,6 +14,7 @@ import ru.yandex.practicum.post.model.Post;
 import static org.junit.jupiter.api.Assertions.*;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class PostMapperTest {
 

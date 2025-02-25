@@ -3,7 +3,6 @@ package ru.yandex.practicum.post.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ public class PostServiceImplements implements PostService {
     CommentService commentService;
     static Integer PREVIEW_MAX_LENGTH = 5;
 
-    @Autowired
     public PostServiceImplements(final PostRepository postRepository, final PostMapper postMapper,
                                  final ImageService imageService, @Lazy final LikeService likeService,
                                  final TagService tagService, @Lazy final CommentService commentService) {

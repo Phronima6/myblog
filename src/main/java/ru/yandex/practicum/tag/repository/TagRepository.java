@@ -1,25 +1,21 @@
 package ru.yandex.practicum.tag.repository;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.tag.model.Tag;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Repository
+@RequiredArgsConstructor
 public class TagRepository {
 
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public TagRepository(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final RowMapper<Tag> tagRowMapper = (rs, rowNum) -> {
         final Tag tag = new Tag();

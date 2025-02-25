@@ -1,11 +1,11 @@
 package ru.yandex.practicum.image.repository;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import ru.yandex.practicum.image.model.Image;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -14,14 +14,10 @@ import java.util.Optional;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Repository
+@RequiredArgsConstructor
 public class ImageRepository {
 
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public ImageRepository(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final RowMapper<Image> imageRowMapper = (rs, rowNum) -> {
         final Image image = new Image();

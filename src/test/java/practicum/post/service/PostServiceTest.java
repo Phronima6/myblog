@@ -2,13 +2,15 @@ package practicum.post.service;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.comment.service.CommentService;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.like.service.LikeService;
@@ -24,8 +26,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class PostServiceTest {
 
@@ -41,12 +43,8 @@ class PostServiceTest {
     TagService tagService;
     @Mock
     CommentService commentService;
+    @InjectMocks
     PostServiceImplements postService;
-
-    @BeforeEach
-    void setUp() {
-        postService = new PostServiceImplements(postRepository, postMapper, imageService, likeService, tagService, commentService);
-    }
 
     @Test
     void savePost() {

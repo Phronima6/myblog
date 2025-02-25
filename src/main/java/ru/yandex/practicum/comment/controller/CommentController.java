@@ -1,8 +1,8 @@
 package ru.yandex.practicum.comment.controller;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +11,10 @@ import ru.yandex.practicum.comment.service.CommentService;
 @Controller
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequestMapping("/feed")
+@RequiredArgsConstructor
 public class CommentController {
 
     CommentService commentService;
-
-    @Autowired
-    public CommentController(final CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @PostMapping("/post/{id}/saveComment")
     @ResponseStatus(HttpStatus.CREATED)

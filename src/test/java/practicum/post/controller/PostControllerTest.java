@@ -2,18 +2,16 @@ package practicum.post.controller;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.ui.Model;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.post.controller.PostController;
 import ru.yandex.practicum.post.dto.PostDtoRequest;
 import ru.yandex.practicum.post.dto.PostDtoResponse;
@@ -21,8 +19,8 @@ import ru.yandex.practicum.post.dto.PostDtoResponseShort;
 import ru.yandex.practicum.post.service.PostService;
 import java.util.List;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class PostControllerTest {
 
@@ -32,11 +30,6 @@ class PostControllerTest {
     Model model;
     @InjectMocks
     PostController postController;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void savePost() {

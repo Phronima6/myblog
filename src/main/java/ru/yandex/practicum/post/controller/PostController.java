@@ -1,7 +1,8 @@
 package ru.yandex.practicum.post.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -14,19 +15,16 @@ import ru.yandex.practicum.post.service.PostService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/feed")
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequestMapping("feed")
+@RequiredArgsConstructor
 public class PostController {
 
     PostService postService;
 
-    @Autowired
-    public PostController(final PostService postService) {
-        this.postService = postService;
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String savePost(@Valid @ModelAttribute final PostDtoRequest postDtoRequest) {
+    public String savePost(@ModelAttribute final PostDtoRequest postDtoRequest) {
         postService.savePost(postDtoRequest);
         return "redirect:/feed";
     }
