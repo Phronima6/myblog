@@ -1,23 +1,19 @@
 package ru.yandex.practicum.like.repository;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.like.model.Like;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Repository
+@RequiredArgsConstructor
 public class LikeRepository {
 
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public LikeRepository(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final RowMapper<Like> likeRowMapper = (rs, rowNum) -> {
         final Like like = new Like();

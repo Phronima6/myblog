@@ -3,11 +3,11 @@ package practicum.comment.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.TestPropertySource;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.comment.dto.CommentDtoResponse;
 import ru.yandex.practicum.comment.model.Comment;
 import ru.yandex.practicum.comment.repository.CommentRepository;
@@ -17,8 +17,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class CommentServiceTest {
 
@@ -61,28 +61,6 @@ class CommentServiceTest {
         final Integer result = commentService.getCountCommentsOfPost(postId);
         assertEquals(count, result);
     }
-
-    /*@Test
-    void updateComment() {
-        final Long commentId = 1L;
-        final String commentText = "Updated Comment";
-        final Comment comment = new Comment();
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-        commentService.updateComment(commentId, commentText);
-        verify(commentRepository, times(1)).findById(commentId);
-        verify(commentRepository, times(1)).save(comment);
-        assertEquals(commentText, comment.getCommentText());
-    }
-
-    @Test
-    void updateComment_ThrowsNotFoundException() {
-        final Long commentId = 1L;
-        final String commentText = "Updated Comment";
-        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> commentService.updateComment(commentId, commentText));
-        verify(commentRepository, times(1)).findById(commentId);
-        verify(commentRepository, never()).save(any());
-    }*/
 
     @Test
     void deleteComment() {

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.post.repository;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -8,7 +9,6 @@ import ru.yandex.practicum.post.model.Post;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -16,14 +16,10 @@ import java.util.Optional;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Repository
+@RequiredArgsConstructor
 public class PostRepository {
 
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public PostRepository(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final RowMapper<Post> postRowMapper = (rs, rowNum) -> {
         final Post post = new Post();

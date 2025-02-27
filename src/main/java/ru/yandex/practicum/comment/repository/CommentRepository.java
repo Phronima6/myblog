@@ -1,8 +1,8 @@
 package ru.yandex.practicum.comment.repository;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -11,14 +11,10 @@ import java.util.List;
 
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Repository
+@RequiredArgsConstructor
 public class CommentRepository {
 
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public CommentRepository(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final RowMapper<Comment> commentRowMapper = (rs, rowNum) -> {
         final Comment comment = new Comment();

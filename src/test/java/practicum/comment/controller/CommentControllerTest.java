@@ -2,62 +2,73 @@ package practicum.comment.controller;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.springframework.test.context.TestPropertySource;
-import ru.yandex.practicum.comment.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.yandex.practicum.MyblogApplication;
+import ru.yandex.practicum.comment.service.CommentService;
+import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.comment.controller.CommentController;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class CommentControllerTest {
 
     @Mock
     CommentService commentService;
+    @InjectMocks
     CommentController commentController;
+    MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        commentController = new CommentController(commentService);
+        mockMvc = MockMvcBuilders.standaloneSetup(commentController).build();
     }
 
     @Test
-    void saveComment() {
+    void saveComment() throws Exception {
         final Long postId = 1L;
         final String commentText = "Test Comment";
-        final String expectedRedirect = "redirect:/feed/post/" + postId;
-        final String result = commentController.saveComment(postId, commentText);
+        mockMvc.perform(MockMvcRequestBuilders.post("/feed/post/{id}/saveComment", postId)
+                        .param("text", commentText))
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/feed/post/" + postId));
         verify(commentService, times(1)).saveComment(commentText, postId);
-        assertEquals(expectedRedirect, result);
     }
 
     @Test
-    void updateComment() {
+    void updateComment() throws Exception {
         final Long commentId = 1L;
         final String commentText = "Updated Comment";
         final Long postId = 1L;
-        final String expectedRedirect = "redirect:/feed/post/" + postId;
-        final String result = commentController.updateComment(commentId, commentText, postId);
+        mockMvc.perform(MockMvcRequestBuilders.post("/feed/post/comment")
+                        .param("id", commentId.toString())
+                        .param("text", commentText)
+                        .param("postId", postId.toString()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/feed/post/" + postId));
         verify(commentService, times(1)).updateComment(commentId, commentText);
-        assertEquals(expectedRedirect, result);
     }
 
     @Test
-    void deleteComment() {
+    void deleteComment() throws Exception {
         final Long commentId = 1L;
         final Long postId = 1L;
-        final String expectedRedirect = "redirect:/feed/post/" + postId;
-        final String result = commentController.deleteComment(commentId, postId);
+        mockMvc.perform(MockMvcRequestBuilders.post("/feed/post/{id}/deleteComment/{commentId}", postId, commentId)
+                        .param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/feed/post/" + postId));
         verify(commentService, times(1)).deleteComment(commentId);
-        assertEquals(expectedRedirect, result);
     }
 
 }

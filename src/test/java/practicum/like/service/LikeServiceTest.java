@@ -2,12 +2,11 @@ package practicum.like.service;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import ru.yandex.practicum.MyblogApplication;
 import ru.yandex.practicum.like.model.Like;
 import ru.yandex.practicum.like.repository.LikeRepository;
 import ru.yandex.practicum.like.service.LikeServiceImplements;
@@ -15,8 +14,8 @@ import ru.yandex.practicum.post.service.PostServiceImplements;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SpringBootTest(classes = MyblogApplication.class)
 @TestPropertySource(locations = "classpath:test-application.properties")
 class LikeServiceTest {
 
@@ -24,13 +23,8 @@ class LikeServiceTest {
     LikeRepository likeRepository;
     @Mock
     PostServiceImplements postService;
+    @InjectMocks
     LikeServiceImplements likeService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        likeService = new LikeServiceImplements(likeRepository, postService);
-    }
 
     @Test
     void saveLike() {

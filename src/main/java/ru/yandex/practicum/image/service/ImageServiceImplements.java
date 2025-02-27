@@ -1,9 +1,9 @@
 package ru.yandex.practicum.image.service;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,14 +17,10 @@ import java.io.IOException;
 @Service
 @Slf4j
 @Transactional
+@RequiredArgsConstructor
 public class ImageServiceImplements implements ImageService {
 
     ImageRepository imageRepository;
-
-    @Autowired
-    public ImageServiceImplements(final ImageRepository imageRepository) {
-        this.imageRepository = imageRepository;
-    }
 
     @Override
     public Image saveImage(final MultipartFile file) {
